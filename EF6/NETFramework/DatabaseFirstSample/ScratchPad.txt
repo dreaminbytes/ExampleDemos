@@ -28,3 +28,4 @@ CREATE TABLE [dbo].[Users]
     [DisplayName] NVARCHAR(MAX) NULL
 )
 
+test
