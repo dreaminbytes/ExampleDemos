@@ -29,3 +29,5 @@ CREATE TABLE [dbo].[Users]
 )
 
 test
+test2
+//todo: Connecctions strings and DB scrips project? dataDir?
