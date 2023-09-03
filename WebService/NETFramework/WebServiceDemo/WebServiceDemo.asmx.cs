@@ -5,12 +5,10 @@ using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.Services;
 
-// Ref: https://www.c-sharpcorner.com/UploadFile/00a8b7/web-service/S
+// Ref: https://www.c-sharpcorner.com/UploadFile/00a8b7/web-service/
 
 namespace WebServiceDemo
 {
-    //todo WebService namspace unique name
-
     /// <summary>
     /// Summary description for WebServiceDemo
     /// </summary>
@@ -20,7 +18,7 @@ namespace WebServiceDemo
     [WebServiceBinding(ConformsTo = WsiProfiles.None)]  // used to allow overloading SumOfNums
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    // [System.Web.Script.Services.ScriptService]
+    [System.Web.Script.Services.ScriptService]
     public class WebServiceDemo : System.Web.Services.WebService
     {
         [WebMethod]

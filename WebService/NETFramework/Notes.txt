@@ -1,0 +1,23 @@
+WebServiceDemo Notes
+--------------------
+
+Add publish folder to IIS - \bin\app.publish
+
+IIS Admin
+=========
+- Add IIS_IUSRS permissions to the above folder for Read, List, Execute
+- Set default document to WebServiceDemo.asmx or in Config
+
+NOTE: Error message 401.3: You do not have permission to view this directory or page using the credentials you supplied
+
+1) Open the Root Web Site in IIS
+2) Go to Authentication --> Anonymous Authentication --> Edit
+3) Make sure Anonymous user identity is set to Application pool identity
+
+NOTE: CORS errors
+
+On IIS add HTTP Reponse Headers of...
+
+	"Access-Control-Allow-Origin": "*",
+	"Access-Control-Allow-Headers": "*"
+
