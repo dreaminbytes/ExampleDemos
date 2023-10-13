@@ -1,11 +1,12 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
-
-using FastExcel;
+﻿using FastExcel;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
+
+// Ref: https://github.com/ahmedwalid05/FastExcel
 
 namespace ExcelLibraryTesting.FastExcelClasses
 {
@@ -23,22 +24,10 @@ namespace ExcelLibraryTesting.FastExcelClasses
             using (FastExcel.FastExcel fastExcel = new FastExcel.FastExcel(new FileInfo(templatefilePath), new FileInfo(filePath)))
             {
                 //Create a worksheet with some rows
-                var worksheet = new Worksheet();
+                var worksheet = new Worksheet(fastExcel);
                 var rows = new List<Row>();
-                //for (int rowNumber = 1; rowNumber < 100; rowNumber++)
-                //{
-                //    var cells = new List<Cell>();
-                //    for (int columnNumber = 1; columnNumber < 13; columnNumber++)
-                //    {
-                //        cells.Add(new Cell(columnNumber, columnNumber * DateTime.Now.Millisecond));
-                //    }
-                //    cells.Add(new Cell(13, "FileFormat" + rowNumber));
-                //    cells.Add(new Cell(14, "FileFormat Developer Guide"));
-
-                //    rows.Add(new Row(rowNumber, cells));
-                //}
+                
                 worksheet.Rows = rows;
-
                 fastExcel.Write(worksheet, "sheet1");
             }
 
@@ -75,68 +64,87 @@ namespace ExcelLibraryTesting.FastExcelClasses
 
             using (FastExcel.FastExcel fastExcel = new FastExcel.FastExcel(new FileInfo(filePath)))
             {
-                //var worksheet = fastExcel.Read("sheet1");
-
-                //var cells = worksheet.GetCellsInRange(new CellRange("A1", "A5"));
-                //foreach (var cell in cells)
-                //{
-                //    cell.Value = "Pizza!";
-                //}
-                //worksheet.PopulateRows(cells);
-
                 var worksheet = new Worksheet(fastExcel);
                 var rows = new List<Row>();
-                
+
+                // Write same value to two cells.
                 for (int rowNumber = 1; rowNumber <= 5; rowNumber ++)
                 {
                     List<Cell> cells = new List<Cell>();
-                    //for (int columnNumber = 1; columnNumber < 13; columnNumber += 2)
-                    //{
-                    //    cells.Add(new Cell(columnNumber, rowNumber));
-                    //}
                     cells.Add(new Cell(1, "Pizza!"));
-
                     rows.Add(new Row(rowNumber, cells));
                 }
                 worksheet.Rows = rows;
                 fastExcel.Update(worksheet, "sheet1");
 
-                //string[] things = new[] { "WOW!!", "Hamburger", "Cars", "Trees" };
-                //var things = new[] { "WOW!!", "Hamburger", "Cars", "Trees" };
+                // Write range to cells.
                 var rows2 = new List<Row>();
-                var cells2 = new List<Cell>();
-                cells2.Add(new Cell(2, "Woo"));
-                cells2.Add(new Cell(3, "Woo"));
-                cells2.Add(new Cell(4, "Woo"));
-                cells2.Add(new Cell(5, "Woo"));
+                var cells2 = new List<Cell>
+                {
+                    new Cell(2, "Wow!!"),
+                    new Cell(3, "Hamburger"),
+                    new Cell(4, "Cars"),
+                    new Cell(5, "Trees")
+                };
                 rows2.Add(new Row(1, cells2));
 
-                //var cells2 = worksheet.GetCellsInRange(new CellRange("B1", "B4"));
-                //foreach (var cell in cells2)
-                //{
-                //    cell.Value = "Wow!!";
-                //}
-                //worksheet.PopulateRows(rows);
-
                 worksheet.Rows = rows2;
-
                 fastExcel.Update(worksheet, "sheet1");
             }
 
             //------------
             watch.Stop();
-            Console.WriteLine($"Read Execution Time: {watch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"Write Execution Time: {watch.ElapsedMilliseconds} ms");
         }
 
-        public static void tmp2()
+        public static void WriteExcelDataList(List<int> data)
+        {
+            var watch = new Stopwatch(); watch.Start();
+            //--- start test ---
+                        
+            using (FastExcel.FastExcel fastExcel = new FastExcel.FastExcel(new FileInfo(filePath)))
+            {
+                var worksheet = new Worksheet(fastExcel);
+                var rows = new List<Row>();
+
+                for (int rowNumber = 1; rowNumber <= data.Count; rowNumber++)
+                {
+                    var cells = new List<Cell>();
+                    cells.Add(new Cell(6, data[rowNumber-1]));
+                    rows.Add(new Row(rowNumber, cells));
+                }
+
+                // Write range to cells.
+                worksheet.Rows = rows;
+                //?? worksheet.PopulateRows(data);
+                fastExcel.Update(worksheet, "sheet1");
+            }
+
+            //------------
+            watch.Stop();
+            Console.WriteLine($"WriteExcelDataList Execution Time: {watch.ElapsedMilliseconds} ms");
+        }
+
+        public static void WriteExcelDataTable(DataTable data)
         {
             var watch = new Stopwatch(); watch.Start();
             //--- start test ---
 
+            using (FastExcel.FastExcel fastExcel = new FastExcel.FastExcel(new FileInfo(filePath)))
+            {
+                var worksheet = new Worksheet(fastExcel);
+                
+                // Issue: Can't preserve number list when writting table.
+                // So write data table test first before number list.
+                worksheet.PopulateRowsFromDataTable(data, 5);
+
+                //error - fastExcel.Update(worksheet, "sheet1");
+                fastExcel.Write(worksheet, "sheet1", 5);
+            }
+
             //------------
             watch.Stop();
-            Console.WriteLine($"Read Execution Time: {watch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"WriteExcelDataTable Execution Time: {watch.ElapsedMilliseconds} ms");
         }
-
     }
 }

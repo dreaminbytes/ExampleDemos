@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+// Ref: https://learn.microsoft.com/en-us/answers/questions/1144394/export-data-to-excel-from-table-with-modified-valu
+
+
 namespace ExcelLibraryTesting.InteropClasses
 {
     static class InteropExcel
@@ -85,7 +88,7 @@ namespace ExcelLibraryTesting.InteropClasses
             Console.WriteLine($"Write Execution Time: {watch.ElapsedMilliseconds} ms");
         }
 
-        public static void WriteExcelData(List<int> data)
+        public static void WriteExcelDataList(List<int> data)
         {
             var watch = new Stopwatch(); watch.Start();
             //--- start test ---
@@ -95,11 +98,7 @@ namespace ExcelLibraryTesting.InteropClasses
             Worksheet ws = wb.Worksheets[1];
 
             // Write range to cells.
-            //Range cellRange = ws.Range[$"F1:F{data.Count}"];
-            //string[] things = new[] { "WOW!!", "Hamburger", "Cars", "Trees" };
-            //cellRange.set_Value(XlRangeValueDataType.xlRangeValueDefault, data);
-
-            object[,] allData1 = new object[data.Count,1];
+            object[,] allData1 = new object[data.Count, 1];
             for (int i = 0; i < data.Count; i++)
             {
                 allData1[i, 0] = data[i];
@@ -115,7 +114,87 @@ namespace ExcelLibraryTesting.InteropClasses
 
             //------------
             watch.Stop();
-            Console.WriteLine($"WriteExcelData Execution Time: {watch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"WriteExcelDataList Execution Time: {watch.ElapsedMilliseconds} ms");
+        }
+
+        public static void WriteExcelDataTable(System.Data.DataTable data)
+        {
+            var watch = new Stopwatch(); watch.Start();
+            //--- start test ---
+
+            Application excel = new Application();
+            Workbook wb = excel.Workbooks.Open(filePath);
+            Worksheet ws = wb.Worksheets[1];
+
+            //// Try 1 - Write data table to cells.
+            //var rowcount = data.Rows.Count;
+            //Range cellRange = ws.Range[ws.Cells[6,1], ws.Cells[rowcount, data.Columns.Count]];
+            ////cellRange.set_Value(XlRangeValueDataType.xlRangeValueDefault, data);
+            //cellRange.Value2 = data;
+
+            // Try 2 - Write data table to cells.
+            for (int col = 0; col < data.Columns.Count; col++)
+            {
+                ws.Range["A6"].Offset[0, col].Value = data.Columns[col].ColumnName;
+            }
+            for (int row = 0; row < data.Rows.Count; row++)
+            {
+                ws.Range["A7"].Offset[row].Resize[1, data.Columns.Count].Value =
+                data.Rows[row].ItemArray;
+            }
+
+            wb.Save();
+            wb.Close();
+            excel.Quit();
+            excel = null;
+
+            //------------
+            watch.Stop();
+            Console.WriteLine($"WriteExcelDataTable Execution Time: {watch.ElapsedMilliseconds} ms");
+        }
+
+        public static void WriteExcelDataTableImproved(System.Data.DataTable data)
+        {
+            var watch = new Stopwatch(); watch.Start();
+            //--- start test ---
+
+            Application excel = new Application();
+            Workbook wb = excel.Workbooks.Open(filePath);
+            Worksheet ws = wb.Worksheets[2];
+            
+            var iCols = data.Columns.Count;
+            var iRows = data.Rows.Count;
+            object[,] objData = new object[iRows, iCols];
+
+            // Write data table to object.
+            for (int row = 0; row < iRows; row++)
+            {
+                for(var column = 0; column < iCols; column++)
+                {
+                    objData[row, column] = data.Rows[row][column];
+                }
+            }
+            // NOTE: DateTime Formatting is lost in this code (even though it's faster)
+
+            // Write headers
+            for (int col = 0; col < data.Columns.Count; col++)
+                ws.Range["A6"].Offset[0, col].Value = data.Columns[col].ColumnName;
+                        
+            // Write object data to cells.
+            //ws.Range["A7"].Value2 = objData;
+            //Range rng = ws.UsedRange.Range["A7", "D"+iRows];
+            Range rng = ws.Range["A7", "D"+iRows];
+            rng.Value2 = objData;
+
+
+            wb.Save();
+            wb.Close();
+            excel.Quit();
+            excel = null;
+
+            //------------
+            watch.Stop();
+            Console.WriteLine($"WriteExcelDataTableImproved Execution Time: {watch.ElapsedMilliseconds} ms");
         }
     }
 }

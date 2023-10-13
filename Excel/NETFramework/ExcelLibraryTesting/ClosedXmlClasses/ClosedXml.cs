@@ -5,6 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+// Useful Links:
+// https://docs.closedxml.io/en/latest/features/bulk-insert-data.html
+// https://github.com/ClosedXML/ClosedXML/tree/develop
+
+
 namespace ExcelLibraryTesting.ClosedXmlClasses
 {
     static class ClosedXml
@@ -20,13 +25,6 @@ namespace ExcelLibraryTesting.ClosedXmlClasses
             using (var wb = new XLWorkbook())
             {
                 var ws = wb.AddWorksheet();
-
-                //ws.Cell("A1").Value = "Apple";
-                //ws.Cell("A2").Value = "Banana";
-                //ws.Cell("A3").Value = "Grape";
-                //ws.Cell("B1").Value = "Wine";
-                //ws.Cell("B2").Value = "Beer";
-                //ws.Cell("B3").Value = "Sugar";
 
                 wb.SaveAs(filePath);
             }
@@ -67,16 +65,10 @@ namespace ExcelLibraryTesting.ClosedXmlClasses
                 var ws = wb.Worksheet(1);
 
                 // Write same value to two cells.
-                //ws.Cell("A1").Value = "Pizza!";
-                //ws.Cell("A2").Value = "Pizza!";
-                //ws.Cell("A3").Value = "Pizza!";
-                //ws.Cell("A4").Value = "Pizza!";
-                //ws.Cell("A5").Value = "Pizza!";
                 ws.Cells("A1:A5").Value = "Pizza!";
 
                 // Write range to cells.
                 string[] things = new[] { "WOW!!", "Hamburger", "Cars", "Trees" };
-                //ws.Cell("B1").InsertData(things);
                 ws.Cell("B1").InsertData(things, true);
 
                 wb.SaveAs(filePath);
@@ -87,7 +79,7 @@ namespace ExcelLibraryTesting.ClosedXmlClasses
             Console.WriteLine($"Write Execution Time: {watch.ElapsedMilliseconds} ms");
         }
 
-        public static void WriteExcelData(List<int> data)
+        public static void WriteExcelDataList(List<int> data)
         {
             var watch = new Stopwatch(); watch.Start();
             //--- start test ---
@@ -104,7 +96,28 @@ namespace ExcelLibraryTesting.ClosedXmlClasses
 
             //------------
             watch.Stop();
-            Console.WriteLine($"WriteExcelData Execution Time: {watch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"WriteExcelDataList Execution Time: {watch.ElapsedMilliseconds} ms");
         }
+
+        public static void WriteExcelDataTable(System.Data.DataTable data)
+        {
+            var watch = new Stopwatch(); watch.Start();
+            //--- start test ---
+
+            using (var wb = new XLWorkbook(filePath))
+            {
+                var ws = wb.Worksheet(1);
+
+                // Write range to cells.
+                ws.Cell("A6").InsertTable(data);
+
+                wb.SaveAs(filePath);
+            }
+
+            //------------
+            watch.Stop();
+            Console.WriteLine($"WriteExcelDataTable Execution Time: {watch.ElapsedMilliseconds} ms");
+        }
+
     }
 }
