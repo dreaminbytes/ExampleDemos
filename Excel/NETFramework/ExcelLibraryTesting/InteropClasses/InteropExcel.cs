@@ -160,7 +160,8 @@ namespace ExcelLibraryTesting.InteropClasses
 
             Application excel = new Application();
             Workbook wb = excel.Workbooks.Open(filePath);
-            Worksheet ws = wb.Worksheets[2];
+            // todo check add for 2nd worksheet
+            Worksheet ws = wb.Worksheets[1];
             
             var iCols = data.Columns.Count;
             var iRows = data.Rows.Count;
