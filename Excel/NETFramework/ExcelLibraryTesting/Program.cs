@@ -6,6 +6,9 @@ using ExcelLibraryTesting.SwiftExcelClasses;
 using System;
 using System.Threading;
 
+//todo test EPPlus
+//todo finish swift tests
+
 namespace ExcelLibraryTesting
 {
     static class Program

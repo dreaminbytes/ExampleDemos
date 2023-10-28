@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// ref: https://event-driven.io/en/using_strongly_typed_ids_with_marten/
+
 namespace StronglyTypedValuesConsoleApp.Classes.Base
 {
     public class StronglyTypedValue<T> : IEquatable<StronglyTypedValue<T>> where T : IComparable<T>

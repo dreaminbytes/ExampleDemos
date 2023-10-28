@@ -3,8 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 
 // Ref: https://learn.microsoft.com/en-us/answers/questions/1144394/export-data-to-excel-from-table-with-modified-valu
+// https://stackoverflow.com/questions/8207869/how-to-export-datatable-to-excel
 
 
 namespace ExcelLibraryTesting.InteropClasses
@@ -20,13 +22,23 @@ namespace ExcelLibraryTesting.InteropClasses
             //--- start test ---
 
             Application excel = new Application();
-            Workbook wb = excel.Workbooks.Add("");
+            Workbook wb = excel.Workbooks.Add(Missing.Value);
             //Worksheet ws = wb.Worksheets[1];
 
-            wb.SaveAs(filePath);
+            wb.SaveAs(filePath, XlFileFormat.xlWorkbookNormal,
+                AccessMode: XlSaveAsAccessMode.xlExclusive
+                );
             wb.Close();
+            wb = null;
             excel.Quit();
             excel = null;
+
+            // Clean up
+            // NOTE: When in release mode, this does the trick
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
 
             //------------
             watch.Stop();
@@ -163,28 +175,30 @@ namespace ExcelLibraryTesting.InteropClasses
             // todo check add for 2nd worksheet
             Worksheet ws = wb.Worksheets[1];
             
-            var iCols = data.Columns.Count;
-            var iRows = data.Rows.Count;
-            object[,] objData = new object[iRows, iCols];
+            var columnCount = data.Columns.Count;
+            var rowCount = data.Rows.Count;
+            object[,] objData = new object[rowCount, columnCount];
 
             // Write data table to object.
-            for (int row = 0; row < iRows; row++)
-            {
-                for(var column = 0; column < iCols; column++)
-                {
-                    objData[row, column] = data.Rows[row][column];
-                }
-            }
+            for (int row = 0; row < rowCount; row++)
+                for(var col = 0; col < columnCount; col++)
+                    objData[row, col] = data.Rows[row][col];
+
             // NOTE: DateTime Formatting is lost in this code (even though it's faster)
 
+            Range HeaderRange = ws.get_Range((Range)ws.Cells[1, 1], (Range)ws.Cells[1, columnCount]);
+            //HeaderRange.Value = Header;
+            //HeaderRange.Interior.Color =  System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightGray);
+            HeaderRange.Font.Bold = true;
+
             // Write headers
-            for (int col = 0; col < data.Columns.Count; col++)
+            for (int col = 0; col < columnCount; col++)
                 ws.Range["A6"].Offset[0, col].Value = data.Columns[col].ColumnName;
                         
             // Write object data to cells.
             //ws.Range["A7"].Value2 = objData;
             //Range rng = ws.UsedRange.Range["A7", "D"+iRows];
-            Range rng = ws.Range["A7", "D"+iRows];
+            Range rng = ws.Range["A7", "D"+rowCount];
             rng.Value2 = objData;
 
 

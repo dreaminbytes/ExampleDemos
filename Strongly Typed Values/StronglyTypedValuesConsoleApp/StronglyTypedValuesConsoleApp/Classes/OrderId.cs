@@ -13,8 +13,8 @@ namespace StronglyTypedValuesConsoleApp.Classes
 
         public static OrderId New() => new OrderId(Guid.NewGuid());
 
-        public bool Equals(OrderId other) => this.Value.Equals(other.Value);
         public int CompareTo(OrderId other) => Value.CompareTo(other.Value);
+        public bool Equals(OrderId other) => this.Value.Equals(other.Value);
 
         public override bool Equals(object obj)
         {
