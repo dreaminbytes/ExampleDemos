@@ -11,9 +11,7 @@ namespace StronglyTypedValuesConsoleApp.Classes
             Value = value;
         }
 
-        //review: is this need, maybe only for GUID
-        internal static PersonId New() => new PersonId(0);
-
+        // No New
         public int CompareTo(PersonId other) => Value.CompareTo(other.Value);
         public bool Equals(PersonId other) => this.Value.Equals(other.Value);
 
